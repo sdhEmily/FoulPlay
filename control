@@ -1,10 +1,10 @@
 Package: gay.sdh.foulplay
 Name: FoulPlay
-Version: 1.0.0
+Version: 1.1.0
 Architecture: iphoneos-arm64
 Description: Slopped-ish frontend for unfairplay
 Author: sdhEmily
 Maintainer: sdhEmily
-Icon: file:///var/jb/Library/dpkg/icons/gay.sdh.foulplay.png
-Depends: unzip
+Icon: file:///var/jb/Applications/FoulPlay.app/AppIcon.png
+Depends: firmware (>= 15.0)
 Section: Utilities
