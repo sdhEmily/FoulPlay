@@ -4,7 +4,11 @@ ARCHS = arm64
 TARGET = iphone:clang:16.5:15.0
 THEOS_PACKAGE_SCHEME = rootless
 
-export DEVELOPER_DIR = /Applications/Xcode-beta.app/Contents/Developer
+# Follow xcode-select rather than a hardcoded path. There is nothing useful to
+# fall back to: if xcode-select is wrong, the /usr/bin tool shims Theos invokes
+# resolve through it and fail regardless. An explicit DEVELOPER_DIR in the
+# environment still wins, which is the normal way to build against another Xcode.
+export DEVELOPER_DIR ?= $(shell xcode-select -p)
 
 THEOS_DEVICE_IP = 127.0.0.1
 THEOS_DEVICE_PORT = 2222
