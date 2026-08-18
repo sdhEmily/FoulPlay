@@ -2,7 +2,7 @@
   <img src="Resources/icon-readme.png" width="128" alt="FoulPlay">
 </p>
 <h1 align="center">FoulPlay</h1>
-<h3 align="center">A platform-agnostic IPA decrypter for iOS 15+</h3>
+<h3 align="center">A platform-agnostic IPA decryptor for iOS 15+</h3>
 <h6 align="center">(Tested with tvOS and iOS apps)</h6>
 
 ### Requirements
