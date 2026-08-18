@@ -11,7 +11,7 @@
 - Target app IPA with an arm64 Mach-O binary
 
 ### How to use
-1. Download and install the latest deb from [here](https://github.com/sdhEmily/FoulPlay/releases)
+1. Download and install the latest deb from [here](https://github.com/sdhEmily/FoulPlay/releases/latest)
 2. Open FoulPlay and select the IPA you want to decrypt
 3. Use the share sheet to export the decrypted IPA
 
