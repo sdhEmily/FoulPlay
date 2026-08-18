@@ -13,7 +13,7 @@
     <key>CFBundleVersion</key>
     <string>1</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0</string>
+    <string>1.1.0</string>
     <key>MinimumOSVersion</key>
     <string>15.0</string>
     <key>UIDeviceFamily</key>
@@ -28,6 +28,15 @@
     <key>UISupportedInterfaceOrientations</key>
     <array>
         <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+    <key>UISupportedInterfaceOrientations~ipad</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationPortraitUpsideDown</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
     </array>
     <key>CFBundleIconFiles</key>
     <array>
@@ -47,7 +56,33 @@
     <true/>
     <key>UIFileSharingEnabled</key>
     <true/>
-    <!-- Allow opening .ipa files (they're zip archives) -->
+    <!-- iOS has no built-in UTI for .ipa, so an unregistered .ipa resolves to a
+         dynamic type conforming only to public.data. Declaring the type here is
+         what lets LaunchServices offer FoulPlay in "Open in" / the share sheet. -->
+    <key>UTImportedTypeDeclarations</key>
+    <array>
+        <dict>
+            <key>UTTypeIdentifier</key>
+            <string>com.apple.itunes.ipa</string>
+            <key>UTTypeDescription</key>
+            <string>iOS App Archive</string>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>com.pkware.zip-archive</string>
+                <string>public.data</string>
+            </array>
+            <!-- .tipa is the same format (a zipped Payload/), just the
+                 TrollStore-flavoured extension — one type covers both. -->
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>ipa</string>
+                    <string>tipa</string>
+                </array>
+            </dict>
+        </dict>
+    </array>
     <key>CFBundleDocumentTypes</key>
     <array>
         <dict>
@@ -59,8 +94,7 @@
             <string>Alternate</string>
             <key>LSItemContentTypes</key>
             <array>
-                <string>com.pkware.zip-archive</string>
-                <string>public.zip-archive</string>
+                <string>com.apple.itunes.ipa</string>
             </array>
         </dict>
     </array>
