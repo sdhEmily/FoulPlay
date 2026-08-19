@@ -17,7 +17,7 @@
 
 
 ### Building
-This requires [Theos](https://theos.dev) to be installed and in PATH and [Xcode](https://developer.apple.com/xcode/) with the iOS development tools
+This requires [Theos](https://theos.dev) to be installed and in PATH and [Xcode](https://developer.apple.com/xcode/) with the iOS SDK
 ```sh
 git clone https://github.com/sdhEmily/FoulPlay
 cd FoulPlay
