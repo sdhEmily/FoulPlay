@@ -363,9 +363,14 @@ static NSString *bundleExecutable(NSString *bundlePath) {
         return nil;
     }
 
-    // ── 6. Decrypt frameworks and app extensions (best-effort) ────────────────
+    // ── 6. Decrypt frameworks and app extensions ──────────────────────────────
     // Nested bundles carry their own LC_ENCRYPTION_INFO_64; their sinfs live in
     // the app bundle's SC_Info, which _decryptBinary falls back to.
+    //
+    // A nested failure fails the whole run. This used to log and carry on, which
+    // shipped a half-decrypted IPA reported as "✓ Decrypted" — the frameworks
+    // were still encrypted and nothing said so, which is worse than an error
+    // because it looks finished.
     NSArray<NSString *> *nested = @[@"Frameworks", @"PlugIns"];
 
     for (NSString *sub in nested) {
@@ -382,10 +387,25 @@ static NSString *bundleExecutable(NSString *bundlePath) {
 
             if (bail()) { if (outErr) *outErr = FPCancelled(); return nil; }
 
+            // Ask first whether there is anything to do: _decryptBinary returns
+            // NO both for "already decrypted / not encrypted" and for a real
+            // failure, and an unencrypted framework must not fail the run.
+            NSString *skipReason = nil;
+            if (!binaryNeedsDecryption(bin, label, &skipReason)) {
+                FPLogger(@"Dec", @"%@: nothing to do (%@)", item,
+                         skipReason ?: @"not encrypted");
+                continue;
+            }
+
             NSString *nErr = nil;
             if (![self _decryptBinary:bin inBundle:bundlePath appBundle:appBundle
                           isCancelled:isCancelled displayName:label error:&nErr]) {
-                FPLogger(@"Dec", @"%@ skipped: %@", item, nErr ?: @"(none)");
+                FPLogger(@"Dec", @"%@ FAILED: %@", item, nErr ?: @"(none)");
+                cleanup();
+                if (outErr) *outErr = self.cancelled ? FPCancelled()
+                    : FPError([NSString stringWithFormat:@"%@: %@", label,
+                               nErr ?: @"decryption failed"]);
+                return nil;
             }
         }
     }
