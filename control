@@ -1,6 +1,6 @@
 Package: gay.sdh.foulplay
 Name: FoulPlay
-Version: 1.1.0
+Version: 1.1.1
 Architecture: iphoneos-arm64
 Description: Platform-agnostic IPA decryptor
 Author: sdhEmily
