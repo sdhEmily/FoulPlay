@@ -246,6 +246,31 @@ BOOL binaryNeedsDecryption(NSString *binaryPath, NSString *displayName,
 // ── Public entry point ────────────────────────────────────────────────────────
 //
 // Decrypts every FairPlay-encrypted slice of `binaryPath` in place.
+// Newer App Store builds ship versioned FairPlay supplements alongside the sinf
+// (TVRemoteApp.v4.supp, TVRemoteApp.v5.supf). The supf carries the key that
+// actually decrypts the Mach-O, so a scheme the running kernel has no crypter
+// for makes mremap_encrypted fail to set one up — it returns ENOMEM, which on
+// its own reads as an out-of-memory condition and explains nothing.
+static BOOL hasVersionedSupplements(NSString *appBundleDir) {
+    NSString *dir = [appBundleDir stringByAppendingPathComponent:@"SC_Info"];
+    NSArray<NSString *> *names =
+        [[NSFileManager defaultManager] contentsOfDirectoryAtPath:dir error:nil];
+    for (NSString *name in names) {
+        NSString *ext = name.pathExtension;
+        if (![ext isEqualToString:@"supf"] && ![ext isEqualToString:@"supp"] &&
+            ![ext isEqualToString:@"supx"]) continue;
+        // "<name>.v5.supf" -> the component before the extension is "v<digits>"
+        NSString *tag = name.stringByDeletingPathExtension.pathExtension;
+        if (tag.length < 2 || ![tag hasPrefix:@"v"]) continue;
+        NSCharacterSet *nonDigit =
+            [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
+        if ([[tag substringFromIndex:1] rangeOfCharacterFromSet:nonDigit].location
+                == NSNotFound)
+            return YES;
+    }
+    return NO;
+}
+
 // `appBundleDir` must contain SC_Info/<binary>.sinf.
 //
 BOOL decryptBinaryAtPath(NSString *binaryPath,
@@ -379,6 +404,9 @@ BOOL decryptBinaryAtPath(NSString *binaryPath,
             if (errorOut) {
                 if (savedErrno == EPERM && isPlatform) {
                     *errorOut = @"FairPlay keys missing";
+                } else if (savedErrno == ENOMEM &&
+                           hasVersionedSupplements(appBundleDir)) {
+                    *errorOut = @"SC_Info format unsupported";
                 } else {
                     *errorOut = [NSString stringWithFormat:
                         @"mremap_encrypted failed: errno=%d (%s)\ncsflags=0x%x (%@)",
